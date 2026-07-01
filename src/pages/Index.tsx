@@ -279,12 +279,23 @@ const Index = () => {
                 className="group hover-lift animate-fade-in"
                 style={{ animationDelay: `${0.1 * i}s` }}
               >
-                <div className="overflow-hidden rounded-sm border border-border bg-card">
+                <div className="relative overflow-hidden rounded-sm border border-border bg-card">
                   <img
                     src={item.src}
                     alt={item.title}
                     className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                   />
+                  <button
+                    onClick={() => {
+                      const updated = gallery.filter((_, idx) => idx !== i);
+                      setGallery(updated);
+                      saveGallery(updated);
+                    }}
+                    className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-sm border border-border/60 bg-card/80 text-muted-foreground opacity-0 backdrop-blur-sm transition-all duration-200 hover:border-destructive/60 hover:text-destructive group-hover:opacity-100"
+                    title="Удалить из галереи"
+                  >
+                    <Icon name="X" size={14} />
+                  </button>
                 </div>
                 <figcaption className="mt-4 flex items-start justify-between">
                   <div>
