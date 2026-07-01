@@ -21,7 +21,7 @@ const PLATFORMS = [
   { name: 'TikTok', icon: 'Music2' },
 ];
 
-const FORMATS = ['MP4', 'MOV', 'WEBM', 'MP3'];
+const FORMATS = ['MP4', 'WEBM'];
 const QUALITIES = ['4K', '1080p', '720p', '480p'];
 
 const INITIAL_GALLERY: GalleryItem[] = [
@@ -45,7 +45,7 @@ const INITIAL_GALLERY: GalleryItem[] = [
   },
 ];
 
-const STORAGE_KEY = 'freebuff_gallery';
+const STORAGE_KEY = 'savevideo_gallery';
 
 const loadGallery = (): GalleryItem[] => {
   try {
@@ -90,7 +90,7 @@ const Index = () => {
       const res = await fetch(RESOLVE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url.trim(), quality }),
+        body: JSON.stringify({ url: url.trim(), quality, format }),
       });
       const data = await res.json();
       if (!res.ok || !data.downloadUrl) {
@@ -100,7 +100,7 @@ const Index = () => {
       const newItem: GalleryItem = {
         src: data.thumbnail || INITIAL_GALLERY[0].src,
         title: data.title || 'Видео',
-        meta: `${format} · ${quality}`,
+        meta: `${data.ext?.toUpperCase() || format} · ${data.quality || quality}`,
         source: data.extractor || 'Видео',
         downloadUrl: data.downloadUrl,
       };
@@ -129,7 +129,7 @@ const Index = () => {
       <header className="border-b border-border">
         <div className="container flex items-center justify-between py-6">
           <div className="flex items-center gap-2">
-            <span className="font-display text-2xl tracking-tight">Freebuff</span>
+            <span className="font-display text-2xl tracking-tight">SaveVideo</span>
             <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mt-1">
               Studio
             </span>
@@ -325,7 +325,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border">
         <div className="container flex flex-col items-center justify-between gap-4 py-10 text-sm text-muted-foreground md:flex-row">
-          <span className="font-display text-lg text-foreground">Freebuff Studio</span>
+          <span className="font-display text-lg text-foreground">SaveVideo Studio</span>
           <span>© 2026 · Тихое место для ваших видео</span>
         </div>
       </footer>
