@@ -45,13 +45,29 @@ const INITIAL_GALLERY: GalleryItem[] = [
   },
 ];
 
+const STORAGE_KEY = 'freebuff_gallery';
+
+const loadGallery = (): GalleryItem[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as GalleryItem[];
+  } catch (e) { /* ignore */ }
+  return INITIAL_GALLERY;
+};
+
+const saveGallery = (items: GalleryItem[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch (e) { /* ignore */ }
+};
+
 const Index = () => {
   const { toast } = useToast();
   const [url, setUrl] = useState('');
   const [format, setFormat] = useState('MP4');
   const [quality, setQuality] = useState('1080p');
   const [loading, setLoading] = useState(false);
-  const [gallery, setGallery] = useState<GalleryItem[]>(INITIAL_GALLERY);
+  const [gallery, setGallery] = useState<GalleryItem[]>(loadGallery);
 
   const triggerDownload = (fileUrl: string, name: string) => {
     const a = document.createElement('a');
@@ -88,7 +104,11 @@ const Index = () => {
         source: data.extractor || 'Видео',
         downloadUrl: data.downloadUrl,
       };
-      setGallery((prev) => [newItem, ...prev]);
+      setGallery((prev) => {
+        const updated = [newItem, ...prev];
+        saveGallery(updated);
+        return updated;
+      });
       triggerDownload(data.downloadUrl, data.title || 'video');
       toast({ title: 'Готово', description: 'Файл добавлен в галерею и скачивается.' });
       setUrl('');
@@ -234,9 +254,22 @@ const Index = () => {
               </p>
               <h2 className="font-display text-4xl md:text-5xl">Ваша галерея</h2>
             </div>
-            <p className="hidden max-w-xs text-sm text-muted-foreground md:block">
-              Скачанные видео хранятся здесь — как экспонаты в тихом зале.
-            </p>
+            <div className="flex flex-col items-end gap-3">
+              <p className="hidden max-w-xs text-sm text-muted-foreground md:block">
+                Скачанные видео хранятся здесь — как экспонаты в тихом зале.
+              </p>
+              <button
+                onClick={() => {
+                  setGallery(INITIAL_GALLERY);
+                  saveGallery(INITIAL_GALLERY);
+                  toast({ title: 'Галерея очищена' });
+                }}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-destructive"
+              >
+                <Icon name="Trash2" size={13} />
+                Очистить
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
