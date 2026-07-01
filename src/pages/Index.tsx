@@ -15,10 +15,8 @@ interface GalleryItem {
 }
 
 const PLATFORMS = [
-  { name: 'Instagram', icon: 'Instagram' },
-  { name: 'Pinterest', icon: 'Image' },
   { name: 'YouTube', icon: 'Youtube' },
-  { name: 'TikTok', icon: 'Music2' },
+  { name: 'YouTube Shorts', icon: 'Smartphone' },
 ];
 
 const FORMATS = ['MP4', 'WEBM'];
@@ -145,7 +143,7 @@ const Index = () => {
       <section id="upload" className="container py-20 md:py-28">
         <div className="mx-auto max-w-3xl text-center animate-fade-in">
           <p className="mb-6 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-            Instagram · Pinterest · YouTube · TikTok
+            YouTube · YouTube Shorts
           </p>
           <h1 className="font-display text-5xl leading-[1.05] md:text-7xl">
             Сохраняйте видео
@@ -174,7 +172,7 @@ const Index = () => {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleDownload()}
-                placeholder="Вставьте ссылку на видео…"
+                placeholder="https://youtube.com/watch?v=..."
                 className="h-12 border-border bg-background pl-9 text-base"
               />
             </div>
