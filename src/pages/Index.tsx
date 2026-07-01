@@ -2,6 +2,17 @@ import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+
+const RESOLVE_URL = 'https://functions.poehali.dev/4872103e-71e8-4dab-b8ab-9aee2f969f91';
+
+interface GalleryItem {
+  src: string;
+  title: string;
+  meta: string;
+  source: string;
+  downloadUrl?: string;
+}
 
 const PLATFORMS = [
   { name: 'Instagram', icon: 'Instagram' },
@@ -13,7 +24,7 @@ const PLATFORMS = [
 const FORMATS = ['MP4', 'MOV', 'WEBM', 'MP3'];
 const QUALITIES = ['4K', '1080p', '720p', '480p'];
 
-const GALLERY = [
+const INITIAL_GALLERY: GalleryItem[] = [
   {
     src: 'https://cdn.poehali.dev/projects/51d1139b-dd5b-473a-a7dc-3508c0322b6f/files/8f4c0813-5bf9-4cf0-97b3-605a393341e5.jpg',
     title: 'Утренний ритуал',
@@ -35,9 +46,62 @@ const GALLERY = [
 ];
 
 const Index = () => {
+  const { toast } = useToast();
   const [url, setUrl] = useState('');
   const [format, setFormat] = useState('MP4');
   const [quality, setQuality] = useState('1080p');
+  const [loading, setLoading] = useState(false);
+  const [gallery, setGallery] = useState<GalleryItem[]>(INITIAL_GALLERY);
+
+  const triggerDownload = (fileUrl: string, name: string) => {
+    const a = document.createElement('a');
+    a.href = fileUrl;
+    a.download = `${name}.${format.toLowerCase()}`;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
+  const handleDownload = async () => {
+    if (!url.trim()) {
+      toast({ title: 'Вставьте ссылку на видео', variant: 'destructive' });
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(RESOLVE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url.trim(), quality }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.downloadUrl) {
+        throw new Error(data.error || 'Не удалось подготовить файл');
+      }
+
+      const newItem: GalleryItem = {
+        src: data.thumbnail || INITIAL_GALLERY[0].src,
+        title: data.title || 'Видео',
+        meta: `${format} · ${quality}`,
+        source: data.extractor || 'Видео',
+        downloadUrl: data.downloadUrl,
+      };
+      setGallery((prev) => [newItem, ...prev]);
+      triggerDownload(data.downloadUrl, data.title || 'video');
+      toast({ title: 'Готово', description: 'Файл добавлен в галерею и скачивается.' });
+      setUrl('');
+    } catch (e) {
+      toast({
+        title: 'Не получилось',
+        description: e instanceof Error ? e.message : 'Проверьте ссылку и попробуйте снова.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -89,13 +153,18 @@ const Index = () => {
               <Input
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleDownload()}
                 placeholder="Вставьте ссылку на видео…"
                 className="h-12 border-border bg-background pl-9 text-base"
               />
             </div>
-            <Button className="h-12 gap-2 bg-primary px-8 text-primary-foreground hover:bg-primary/90">
-              <Icon name="ArrowDownToLine" size={16} />
-              Скачать
+            <Button
+              onClick={handleDownload}
+              disabled={loading}
+              className="h-12 gap-2 bg-primary px-8 text-primary-foreground hover:bg-primary/90"
+            >
+              <Icon name={loading ? 'Loader2' : 'ArrowDownToLine'} size={16} className={loading ? 'animate-spin' : ''} />
+              {loading ? 'Готовим…' : 'Скачать'}
             </Button>
           </div>
 
@@ -171,9 +240,9 @@ const Index = () => {
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {GALLERY.map((item, i) => (
+            {gallery.map((item, i) => (
               <figure
-                key={item.title}
+                key={`${item.title}-${i}`}
                 className="group hover-lift animate-fade-in"
                 style={{ animationDelay: `${0.1 * i}s` }}
               >
@@ -191,9 +260,17 @@ const Index = () => {
                       {item.source} · {item.meta}
                     </p>
                   </div>
-                  <button className="mt-1 text-muted-foreground transition-colors hover:text-accent">
-                    <Icon name="ArrowDownToLine" size={18} />
-                  </button>
+                  {item.downloadUrl && (
+                    <a
+                      href={item.downloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="mt-1 text-muted-foreground transition-colors hover:text-accent"
+                    >
+                      <Icon name="ArrowDownToLine" size={18} />
+                    </a>
+                  )}
                 </figcaption>
               </figure>
             ))}
