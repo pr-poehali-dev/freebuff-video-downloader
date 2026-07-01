@@ -1,0 +1,19 @@
+{
+  "name": "SaveVideo Studio",
+  "short_name": "SaveVideo",
+  "description": "Скачивайте видео с YouTube в один клик",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "https://cdn.poehali.dev/projects/51d1139b-dd5b-473a-a7dc-3508c0322b6f/files/ae872151-0cee-44ac-af3e-4ff28153cbbe.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
