@@ -20,7 +20,7 @@ const PLATFORMS = [
 ];
 
 const FORMATS = ['MP4', 'WEBM'];
-const QUALITIES = ['4K', '1080p', '720p', '480p'];
+const QUALITIES = ['720p', '480p'];
 
 const INITIAL_GALLERY: GalleryItem[] = [
   {
@@ -63,7 +63,7 @@ const Index = () => {
   const { toast } = useToast();
   const [url, setUrl] = useState('');
   const [format, setFormat] = useState('MP4');
-  const [quality, setQuality] = useState('1080p');
+  const [quality, setQuality] = useState('720p');
   const [loading, setLoading] = useState(false);
   const [gallery, setGallery] = useState<GalleryItem[]>(loadGallery);
 

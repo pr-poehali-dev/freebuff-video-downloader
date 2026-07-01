@@ -11,13 +11,15 @@ YOUTUBE_PATTERN = re.compile(
 
 
 def _pick_format(quality: str) -> str:
-    h_map = {'4K': 2160, '1080p': 1080, '720p': 720, '480p': 480}
-    h = h_map.get(quality, 1080)
+    # Используем только progressive-форматы (видео+аудио в одном файле).
+    # Adaptive (bestvideo+bestaudio) требует ffmpeg для склейки — его нет на сервере.
+    # Progressive доступен максимум до 720p — ограничение YouTube.
+    h_map = {'4K': 720, '1080p': 720, '720p': 720, '480p': 480}
+    h = h_map.get(quality, 720)
     return (
-        f'bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/'
-        f'bestvideo[height<={h}]+bestaudio/'
         f'best[height<={h}][ext=mp4]/'
         f'best[height<={h}]/'
+        f'best[ext=mp4]/'
         f'best'
     )
 
